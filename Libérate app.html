@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Functional Fitness Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0a0a0a;--bg2:#111111;--bg3:#1a1a1a;--bg4:#222222;
+      --neon:#39ff14;--neon2:#00e5a0;--neon3:#a3ff47;
+      --text:#f0f0f0;--text2:#aaa;--text3:#666;
+      --border:#2a2a2a;--border2:#3a3a3a;
+      --radius:8px;--radius2:12px;
+    }
+    html,body{background:var(--bg);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:16px;min-height:100vh}
+    h1,h2,h3{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
+    .app{display:flex;flex-direction:column;min-height:100vh;max-width:960px;margin:0 auto;padding:0 20px 80px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:24px 0 14px;border-bottom:1px solid var(--border2)}
+    .logo{font-size:24px;font-weight:800;letter-spacing:0.08em;color:var(--neon);text-transform:uppercase}
+    .logo span{color:var(--text2);font-weight:400}
+    .week-badge{font-size:12px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);padding:4px 12px;border-radius:20px}
+    .nav{display:flex;gap:4px;margin:20px 0 0;border-bottom:1px solid var(--border)}
+    .nav button{background:none;border:none;color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s}
+    .nav button.active{color:var(--neon);border-bottom-color:var(--neon)}
+    .nav button:hover:not(.active){color:var(--text)}
+    .section{display:none;padding-top:24px}
+    .section.active{display:block}
+
+    /* DASHBOARD */
+    .dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+    .stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);padding:18px 16px}
+    .stat-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+    .stat-val{font-size:30px;font-weight:700;color:var(--text);line-height:1}
+    .stat-val.green{color:var(--neon)}
+    .progress-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);padding:22px}
+    .progress-label{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;display:flex;justify-content:space-between}
+    .prog-bar{height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;margin-bottom:16px}
+    .prog-fill{height:100%;background:var(--neon);border-radius:4px;transition:width .6s ease}
+    .cap-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .cap-badge{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;padding:4px 10px;border-radius:20px;border:1px solid}
+    .cap-fuerza{color:#f97316;border-color:#f9731640;background:#f9731610}
+    .cap-resistencia{color:#3b82f6;border-color:#3b82f640;background:#3b82f610}
+    .cap-flexibilidad{color:#a855f7;border-color:#a855f740;background:#a855f710}
+    .cap-movilidad{color:#00e5a0;border-color:#00e5a040;background:#00e5a010}
+    .cap-cardio{color:#ef4444;border-color:#ef444440;background:#ef444410}
+
+    /* RUTINAS */
+    .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+    .filter-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;padding:5px 14px;border-radius:20px;cursor:pointer;transition:all .2s}
+    .filter-btn.active,.filter-btn:hover{border-color:var(--neon);color:var(--neon);background:#39ff1410}
+    .rutinas-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+    .rutina-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);padding:20px;cursor:pointer;transition:all .2s;position:relative}
+    .rutina-card:hover{border-color:var(--border2);background:var(--bg4)}
+    .rutina-card.done{border-color:#39ff1430}
+    .rutina-card.done .rc-name{color:var(--neon)}
+    .rc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+    .rc-name{font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text);flex:1;margin-right:8px}
+    .rc-lugar{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;background:var(--bg4);padding:3px 8px;border-radius:12px;border:1px solid var(--border);white-space:nowrap}
+    .rc-desc{font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:12px;font-family:'Barlow',sans-serif;font-weight:400;text-transform:none;letter-spacing:0}
+    .rc-caps{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+    .rc-meta{display:flex;gap:16px;font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;align-items:center;flex-wrap:wrap}
+    .rc-done-badge{position:absolute;top:14px;right:90px;width:20px;height:20px;border-radius:50%;background:var(--neon);display:none;align-items:center;justify-content:center}
+    .rutina-card.done .rc-done-badge{display:flex}
+    .progress-mini{height:4px;background:var(--bg4);border-radius:2px;margin-top:12px;overflow:hidden}
+    .progress-mini-fill{height:100%;background:var(--neon);border-radius:2px;transition:width .4s}
+
+    /* DETALLE RUTINA */
+    .back-btn{background:none;border:1px solid var(--border);color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:13px;text-transform:uppercase;letter-spacing:0.06em;padding:8px 16px;border-radius:var(--radius);cursor:pointer;margin-bottom:20px;transition:all .2s}
+    .back-btn:hover{border-color:var(--neon);color:var(--neon)}
+    .det-header{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);padding:22px;margin-bottom:16px}
+    .det-title{font-size:26px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--neon);margin-bottom:6px}
+    .det-meta{font-size:13px;color:var(--text2);display:flex;gap:16px;flex-wrap:wrap;text-transform:uppercase;letter-spacing:0.04em;font-weight:600}
+    .section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:12px}
+    .ejercicios-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+    .ej-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:14px;transition:all .2s;cursor:pointer}
+    .ej-item:hover{background:var(--bg4)}
+    .ej-item.checked{border-color:#39ff1430;background:#39ff1408}
+    .ej-check{width:22px;height:22px;border-radius:4px;border:2px solid var(--border2);background:none;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .ej-item.checked .ej-check{background:var(--neon);border-color:var(--neon)}
+    .ej-check svg{display:none;width:14px;height:14px}
+    .ej-item.checked .ej-check svg{display:block}
+    .ej-info{flex:1}
+    .ej-nombre{font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text)}
+    .ej-item.checked .ej-nombre{color:var(--text2);text-decoration:line-through}
+    .ej-detalle{font-size:12px;color:var(--text3);font-family:'Barlow',sans-serif;font-weight:400;text-transform:none;letter-spacing:0;margin-top:2px}
+    .ej-tiempo{font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;text-align:right;white-space:nowrap}
+    .ej-item.checked .ej-tiempo{color:var(--neon)}
+    .complete-btn{width:100%;background:none;border:2px solid var(--neon);color:var(--neon);font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:16px;border-radius:var(--radius);cursor:pointer;transition:all .2s;margin-bottom:12px}
+    .complete-btn:hover:not(:disabled){background:var(--neon);color:#000}
+    .complete-btn:disabled{border-color:var(--border);color:var(--text3);cursor:default}
+    .complete-btn.done{border-color:#39ff1460;color:#39ff1460}
+    .tabata-link-btn{width:100%;background:none;border:1px solid var(--border2);color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;padding:12px;border-radius:var(--radius);cursor:pointer;transition:all .2s}
+    .tabata-link-btn:hover{border-color:var(--neon2);color:var(--neon2)}
+
+    /* TABATA */
+    .tabata-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+    @media(max-width:640px){.tabata-wrap{grid-template-columns:1fr}}
+    .tabata-timer{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);padding:28px;text-align:center}
+    .timer-phase{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3);margin-bottom:10px}
+    .timer-circle{width:180px;height:180px;margin:0 auto 20px;position:relative}
+    .timer-circle svg{transform:rotate(-90deg)}
+    .timer-display{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .timer-num{font-size:64px;font-weight:800;font-family:'Barlow Condensed',sans-serif;color:var(--text);line-height:1;transition:color .3s}
+    .timer-num.work{color:var(--neon)}
+    .timer-num.rest{color:#3b82f6}
+    .timer-ronda{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px}
+    .timer-btns{display:flex;gap:8px;justify-content:center;margin-top:4px}
+    .t-btn{background:var(--bg4);border:1px solid var(--border2);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;padding:9px 20px;border-radius:var(--radius);cursor:pointer;transition:all .2s}
+    .t-btn:hover{border-color:var(--neon);color:var(--neon)}
+    .t-btn.primary{background:var(--neon);color:#000;border-color:var(--neon)}
+    .t-btn.primary:hover{background:#2de010}
+    .tabata-config{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);padding:22px}
+    .config-row{margin-bottom:18px}
+    .config-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:8px;display:flex;justify-content:space-between}
+    .config-val{color:var(--neon)}
+    input[type=range]{width:100%;accent-color:var(--neon);cursor:pointer}
+    .preset-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+    .preset-btn{background:var(--bg4);border:1px solid var(--border);color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;padding:5px 12px;border-radius:20px;cursor:pointer;transition:all .2s}
+    .preset-btn:hover{border-color:var(--neon2);color:var(--neon2)}
+
+    /* PROGRESO */
+    .hist-empty{text-align:center;color:var(--text3);padding:48px 20px;font-size:14px;text-transform:uppercase;letter-spacing:0.08em}
+    .hist-list{display:flex;flex-direction:column;gap:8px}
+    .hist-item{background:var(--bg3);border:1px solid #39ff1430;border-radius:var(--radius);padding:16px;display:flex;justify-content:space-between;align-items:flex-start}
+    .hist-name{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text);margin-bottom:6px}
+    .hist-date{font-size:12px;color:var(--text3);font-family:'Barlow',sans-serif;text-transform:none;letter-spacing:0;white-space:nowrap;padding-top:2px}
+    .clear-btn{background:none;border:1px solid var(--border);color:var(--text3);font-family:'Barlow Condensed',sans-serif;font-size:12px;text-transform:uppercase;letter-spacing:0.06em;padding:7px 14px;border-radius:var(--radius);cursor:pointer;transition:all .2s}
+    .clear-btn:hover{border-color:#ef4444;color:#ef4444}
+
+    /* RESPONSIVE */
+    @media(max-width:500px){
+      .nav button{font-size:12px;padding:8px 10px}
+      .logo{font-size:20px}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="logo">Functional<span> Fitness</span></div>
+    <div class="week-badge" id="week-badge">Semana —</div>
+  </div>
+  <nav class="nav">
+    <button class="active" onclick="showSection('dashboard',this)">Dashboard</button>
+    <button onclick="showSection('rutinas',this)">Rutinas</button>
+    <button onclick="showSection('tabata',this)">Tabata</button>
+    <button onclick="showSection('progreso',this)">Progreso</button>
+  </nav>
+
+  <!-- DASHBOARD -->
+  <div class="section active" id="s-dashboard">
+    <div class="dash-grid" id="dash-stats"></div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Progreso semanal</span><span id="pct-text">0%</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <div style="font-size:13px;color:var(--text3);margin-bottom:16px;font-family:'Barlow',sans-serif;text-transform:none;letter-spacing:0;line-height:1.6">
+        Completá las rutinas para avanzar. El progreso se guarda automáticamente en tu dispositivo.
+      </div>
+      <div class="section-title">Capacidades que trabajás</div>
+      <div class="cap-badges">
+        <span class="cap-badge cap-fuerza">Fuerza</span>
+        <span class="cap-badge cap-resistencia">Resistencia</span>
+        <span class="cap-badge cap-flexibilidad">Flexibilidad</span>
+        <span class="cap-badge cap-movilidad">Movilidad</span>
+        <span class="cap-badge cap-cardio">Cardio</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RUTINAS LISTA -->
+  <div class="section" id="s-rutinas">
+    <div class="filters" id="filters"></div>
+    <div class="rutinas-grid" id="rutinas-grid"></div>
+  </div>
+
+  <!-- DETALLE RUTINA -->
+  <div class="section" id="s-detalle">
+    <button class="back-btn" onclick="showSection('rutinas',document.querySelector('.nav button:nth-child(2)'));renderRutinas()">← Volver a rutinas</button>
+    <div id="detalle-content"></div>
+  </div>
+
+  <!-- TABATA -->
+  <div class="section" id="s-tabata">
+    <div class="tabata-wrap">
+      <div class="tabata-timer">
+        <div class="timer-phase" id="t-phase">Listo para empezar</div>
+        <div class="timer-circle">
+          <svg width="180" height="180" viewBox="0 0 180 180">
+            <circle cx="90" cy="90" r="78" fill="none" stroke="#1a1a1a" stroke-width="10"/>
+            <circle id="t-arc" cx="90" cy="90" r="78" fill="none" stroke="#39ff14" stroke-width="10"
+              stroke-linecap="round" stroke-dasharray="490.1" stroke-dashoffset="0"
+              style="transition:stroke-dashoffset 0.95s linear,stroke .3s"/>
+          </svg>
+          <div class="timer-display">
+            <div class="timer-num" id="t-display">00</div>
+            <div class="timer-ronda" id="t-ronda">— / —</div>
+          </div>
+        </div>
+        <div class="timer-btns">
+          <button class="t-btn primary" id="t-playpause" onclick="timerPlayPause()">Iniciar</button>
+          <button class="t-btn" onclick="timerReset()">Reset</button>
+        </div>
+      </div>
+      <div class="tabata-config">
+        <div class="section-title" style="margin-bottom:16px">Configuración del intervalo</div>
+        <div class="config-row">
+          <div class="config-label">Trabajo <span class="config-val" id="lbl-work">20s</span></div>
+          <input type="range" min="5" max="60" step="5" value="20" id="cfg-work" oninput="updateConfig()">
+        </div>
+        <div class="config-row">
+          <div class="config-label">Descanso <span class="config-val" id="lbl-rest">10s</span></div>
+          <input type="range" min="5" max="60" step="5" value="10" id="cfg-rest" oninput="updateConfig()">
+        </div>
+        <div class="config-row">
+          <div class="config-label">Rondas <span class="config-val" id="lbl-rounds">8</span></div>
+          <input type="range" min="2" max="20" step="1" value="8" id="cfg-rounds" oninput="updateConfig()">
+        </div>
+        <div class="config-row">
+          <div class="config-label">Preparación <span class="config-val" id="lbl-prep">5s</span></div>
+          <input type="range" min="0" max="20" step="5" value="5" id="cfg-prep" oninput="updateConfig()">
+        </div>
+        <div style="font-size:12px;color:var(--text3);font-family:'Barlow',sans-serif;text-transform:none;letter-spacing:0;margin:4px 0 16px">
+          Tiempo total: <span id="total-time" style="color:var(--neon);font-weight:600">4:25</span>
+        </div>
+        <div class="section-title">Presets rápidos</div>
+        <div class="preset-btns">
+          <button class="preset-btn" onclick="applyPreset(20,10,8,5)">Tabata clásico</button>
+          <button class="preset-btn" onclick="applyPreset(40,20,6,5)">HIIT moderado</button>
+          <button class="preset-btn" onclick="applyPreset(30,30,10,10)">30/30</button>
+          <button class="preset-btn" onclick="applyPreset(45,15,6,5)">45/15 intenso</button>
+          <button class="preset-btn" onclick="applyPreset(20,40,8,5)">Principiante</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRESO -->
+  <div class="section" id="s-progreso">
+    <div class="dash-grid" id="prog-stats"></div>
+    <div style="margin:24px 0 12px;display:flex;justify-content:space-between;align-items:center">
+      <div class="section-title" style="margin:0">Historial de rutinas completadas</div>
+      <button class="clear-btn" onclick="clearHistory()">Limpiar historial</button>
+    </div>
+    <div id="hist-list"></div>
+  </div>
+</div>
+
+<script>
+const RUTINAS = [
+  {id:'r1',nombre:'Full Body Explosivo',lugar:'Gimnasio',caps:['fuerza','cardio'],
+   descripcion:'Circuito de fuerza y potencia para activar todo el cuerpo con énfasis en movimientos compuestos.',
+   duracion:'40 min',nivel:'Intermedio',ejercicios:[
+    {n:'Sentadilla con barra',d:'4 series × 10 reps',t:'20s / 40s',tabata:true},
+    {n:'Press banca',d:'4 series × 8 reps',t:'20s / 40s',tabata:true},
+    {n:'Remo con barra',d:'4 series × 8 reps',t:'20s / 40s',tabata:true},
+    {n:'Peso muerto rumano',d:'3 series × 10 reps',t:'20s / 40s',tabata:true},
+    {n:'Push press',d:'3 series × 8 reps',t:'20s / 40s',tabata:true},
+    {n:'Box jumps',d:'3 series × 10 reps',t:'20s / 40s',tabata:true},
+  ]},
+  {id:'r2',nombre:'Core & Movilidad',lugar:'Casa',caps:['movilidad','flexibilidad'],
+   descripcion:'Rutina de suelo para activar el core profundo y mejorar la movilidad articular de cadera y columna.',
+   duracion:'30 min',nivel:'Todos',ejercicios:[
+    {n:'Cat-cow',d:'2 min continuo',t:'30s / 10s',tabata:false},
+    {n:'Hip 90-90 stretch',d:'3 series × 45s cada lado',t:'45s / 15s',tabata:true},
+    {n:'Hollow hold',d:'4 series × 20s',t:'20s / 20s',tabata:true},
+    {n:'Dead bug',d:'3 series × 8 reps por lado',t:'20s / 20s',tabata:true},
+    {n:'Pigeon pose',d:'2 min por lado',t:'60s / 10s',tabata:false},
+    {n:'Plank walkout',d:'3 series × 6 reps',t:'20s / 20s',tabata:true},
+  ]},
+  {id:'r3',nombre:'Cardio HIIT',lugar:'Casa',caps:['cardio','resistencia'],
+   descripcion:'Entrenamiento de intervalos de alta intensidad sin equipamiento. Eleva el ritmo cardíaco y quema calorías.',
+   duracion:'25 min',nivel:'Intermedio',ejercicios:[
+    {n:'Jumping jacks',d:'Tabata 20/10 × 4 rondas',t:'20s / 10s',tabata:true},
+    {n:'Mountain climbers',d:'Tabata 20/10 × 4 rondas',t:'20s / 10s',tabata:true},
+    {n:'Burpees',d:'Tabata 20/10 × 4 rondas',t:'20s / 10s',tabata:true},
+    {n:'High knees',d:'Tabata 20/10 × 4 rondas',t:'20s / 10s',tabata:true},
+    {n:'Squat jumps',d:'Tabata 20/10 × 4 rondas',t:'20s / 10s',tabata:true},
+  ]},
+  {id:'r4',nombre:'Fuerza Lower Body',lugar:'Gimnasio',caps:['fuerza','movilidad'],
+   descripcion:'Tren inferior completo: glúteos, cuádriceps, isquiotibiales y pantorrillas con movilidad integrada.',
+   duracion:'45 min',nivel:'Intermedio',ejercicios:[
+    {n:'Sentadilla goblet',d:'3 series × 12 reps',t:'30s / 30s',tabata:true},
+    {n:'Zancadas caminando',d:'3 series × 10 por lado',t:'30s / 20s',tabata:true},
+    {n:'Hip thrust',d:'4 series × 10 reps',t:'20s / 40s',tabata:true},
+    {n:'Leg curl máquina',d:'3 series × 12 reps',t:'20s / 40s',tabata:true},
+    {n:'Elevación de talones',d:'3 series × 20 reps',t:'20s / 20s',tabata:true},
+    {n:'Couch stretch',d:'2 min por lado',t:'60s / 10s',tabata:false},
+  ]},
+  {id:'r5',nombre:'Upper Body Functional',lugar:'Gimnasio',caps:['fuerza','resistencia'],
+   descripcion:'Empuje y tracción funcional para el tren superior con foco en la cadena posterior y estabilidad.',
+   duracion:'40 min',nivel:'Intermedio',ejercicios:[
+    {n:'Dominadas / asistidas',d:'4 series × 6-8 reps',t:'20s / 50s',tabata:true},
+    {n:'Press militar',d:'4 series × 8 reps',t:'20s / 50s',tabata:true},
+    {n:'Face pulls',d:'3 series × 15 reps',t:'20s / 30s',tabata:true},
+    {n:'Push-ups arquero',d:'3 series × 8 por lado',t:'20s / 30s',tabata:true},
+    {n:'Remo TRX / anillas',d:'3 series × 12 reps',t:'20s / 30s',tabata:true},
+    {n:'Extensión tríceps polea',d:'3 series × 12 reps',t:'20s / 30s',tabata:true},
+  ]},
+  {id:'r6',nombre:'Yoga Funcional',lugar:'Casa',caps:['flexibilidad','movilidad'],
+   descripcion:'Secuencia de yoga orientada al rendimiento: movilidad de cadera, hombros y columna con respiración.',
+   duracion:'35 min',nivel:'Todos',ejercicios:[
+    {n:'Sun salutation A',d:'5 ciclos completos',t:'—',tabata:false},
+    {n:'Warrior I + II',d:'1 min por postura por lado',t:'60s / 10s',tabata:false},
+    {n:'Lizard pose',d:'2 min por lado',t:'60s / 10s',tabata:false},
+    {n:'Shoulder thread needle',d:'90 segundos por lado',t:'45s / 15s',tabata:false},
+    {n:'Puppy pose',d:'2 minutos',t:'60s / 10s',tabata:false},
+    {n:'Happy baby',d:'2 minutos',t:'60s / 10s',tabata:false},
+  ]},
+  {id:'r7',nombre:'Resistencia Metabolic',lugar:'Casa',caps:['resistencia','cardio','fuerza'],
+   descripcion:'Circuito metabólico de peso corporal. Alta densidad de trabajo para resistencia muscular y aeróbica.',
+   duracion:'35 min',nivel:'Avanzado',ejercicios:[
+    {n:'Push-ups',d:'Tabata 20/10 × 4 rondas',t:'20s / 10s',tabata:true},
+    {n:'Squat',d:'Tabata 20/10 × 4 rondas',t:'20s / 10s',tabata:true},
+    {n:'Renegade rows',d:'3 series × 6 por lado',t:'20s / 20s',tabata:true},
+    {n:'Thrusters con mancuernas',d:'Tabata 20/10 × 4 rondas',t:'20s / 10s',tabata:true},
+    {n:'V-ups',d:'3 series × 12 reps',t:'20s / 20s',tabata:true},
+    {n:'Bear crawl',d:'3 series × 20 metros',t:'20s / 20s',tabata:true},
+  ]},
+  {id:'r8',nombre:'Movilidad Mañana',lugar:'Casa',caps:['movilidad','flexibilidad'],
+   descripcion:'Rutina de 20 minutos para arrancar el día: activa articulaciones, libera tensión y prepara el cuerpo.',
+   duracion:'20 min',nivel:'Todos',ejercicios:[
+    {n:'Círculos de cuello',d:'30 segundos por dirección',t:'30s / 5s',tabata:false},
+    {n:'Rotación torácica en cuadrupedia',d:'10 reps por lado',t:'20s / 10s',tabata:false},
+    {n:'Hip circles',d:'10 reps por lado',t:'20s / 10s',tabata:false},
+    {n:"World's greatest stretch",d:'5 reps por lado',t:'30s / 10s',tabata:false},
+    {n:'Ankle circles',d:'10 reps por dirección por lado',t:'20s / 5s',tabata:false},
+    {n:'Inchworm',d:'5 reps completos',t:'30s / 10s',tabata:false},
+  ]},
+];
+
+// STORAGE
+let storage = {};
+try { let r = localStorage.getItem('ffg_v1'); if(r) storage = JSON.parse(r); } catch(e) {}
+function save() { try { localStorage.setItem('ffg_v1', JSON.stringify(storage)); } catch(e) {} }
+function getChecks(id) { return storage['checks_'+id] || {}; }
+function isDone(id) { return !!storage['done_'+id]; }
+function markDone(id) {
+  let r = RUTINAS.find(x => x.id === id);
+  if(!storage['done_'+id]) {
+    storage['done_'+id] = true;
+    let h = storage.history || [];
+    h.unshift({ id, nombre: r.nombre, caps: r.caps, fecha: new Date().toLocaleDateString('es-AR', {day:'2-digit',month:'short',year:'numeric'}) });
+    storage.history = h;
+    save();
+  }
+}
+function clearHistory() {
+  if(!confirm('¿Borrar todo el historial y progreso?')) return;
+  localStorage.removeItem('ffg_v1');
+  storage = {};
+  renderDashboard(); renderProgreso(); renderRutinas();
+}
+
+// NAVIGATION
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  if(id === 'rutinas') renderRutinas();
+  if(id === 'progreso') renderProgreso();
+}
+
+// DASHBOARD
+function getWeek(d) {
+  let f = new Date(d.getFullYear(), 0, 1);
+  return Math.ceil(((d - f) / 86400000 + f.getDay() + 1) / 7);
+}
+function renderDashboard() {
+  let done = RUTINAS.filter(r => isDone(r.id)).length;
+  let total = RUTINAS.length;
+  let pct = Math.round(done / total * 100);
+  let hist = storage.history || [];
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Rutinas totales</div><div class="stat-val">${total}</div></div>
+    <div class="stat-card"><div class="stat-label">Completadas</div><div class="stat-val green">${done}</div></div>
+    <div class="stat-card"><div class="stat-label">Progreso</div><div class="stat-val">${pct}%</div></div>
+    <div class="stat-card"><div class="stat-label">Total sesiones</div><div class="stat-val">${hist.length}</div></div>
+  `;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('pct-text').textContent = pct + '%';
+  let d = new Date();
+  document.getElementById('week-badge').textContent = `Semana ${getWeek(d)} — ${d.getFullYear()}`;
+}
+
+// RUTINAS LISTA
+let currentFilter = 'todos';
+function renderRutinas() {
+  let filters = ['todos','Casa','Gimnasio','fuerza','resistencia','flexibilidad','movilidad','cardio'];
+  let labels = {todos:'Todos',Casa:'Casa',Gimnasio:'Gimnasio',fuerza:'Fuerza',resistencia:'Resistencia',flexibilidad:'Flexibilidad',movilidad:'Movilidad',cardio:'Cardio'};
+  document.getElementById('filters').innerHTML = filters.map(f =>
+    `<button class="filter-btn${currentFilter===f?' active':''}" onclick="setFilter('${f}')">${labels[f]}</button>`
+  ).join('');
+  let list = RUTINAS.filter(r => {
+    if(currentFilter === 'todos') return true;
+    if(currentFilter === 'Casa' || currentFilter === 'Gimnasio') return r.lugar === currentFilter;
+    return r.caps.includes(currentFilter);
+  });
+  document.getElementById('rutinas-grid').innerHTML = list.map(r => {
+    let done = isDone(r.id);
+    let checks = getChecks(r.id);
+    let ndone = Object.values(checks).filter(Boolean).length;
+    let pct = Math.round(ndone / r.ejercicios.length * 100);
+    return `<div class="rutina-card${done?' done':''}" onclick="showDetalle('${r.id}')">
+      <div class="rc-done-badge">
+        <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+          <polyline points="2,7 6,11 12,3" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="rc-top">
+        <div class="rc-name">${r.nombre}</div>
+        <div class="rc-lugar">${r.lugar}</div>
+      </div>
+      <div class="rc-desc">${r.descripcion}</div>
+      <div class="rc-caps">${r.caps.map(c => `<span class="cap-badge cap-${c}">${c}</span>`).join('')}</div>
+      <div class="rc-meta">
+        <span>${r.duracion}</span>
+        <span>·</span>
+        <span>${r.nivel}</span>
+        <span>·</span>
+        <span>${r.ejercicios.length} ejercicios</span>
+      </div>
+      <div class="progress-mini"><div class="progress-mini-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+function setFilter(f) { currentFilter = f; renderRutinas(); }
+
+// DETALLE RUTINA
+function showDetalle(id) {
+  let r = RUTINAS.find(x => x.id === id);
+  let checks = getChecks(id);
+  let done = isDone(id);
+  let ndone = Object.values(checks).filter(Boolean).length;
+  let pct = Math.round(ndone / r.ejercicios.length * 100);
+  document.getElementById('detalle-content').innerHTML = `
+    <div class="det-header">
+      <div class="det-title">${r.nombre}</div>
+      <div style="font-size:14px;color:var(--text2);font-family:'Barlow',sans-serif;margin:6px 0 12px;text-transform:none;letter-spacing:0;line-height:1.6">${r.descripcion}</div>
+      <div class="det-meta">
+        <span>${r.duracion}</span><span>|</span><span>${r.nivel}</span><span>|</span><span>${r.lugar}</span>
+      </div>
+      <div class="rc-caps" style="margin-top:12px">${r.caps.map(c => `<span class="cap-badge cap-${c}">${c}</span>`).join('')}</div>
+      <div class="progress-mini" style="margin-top:14px"><div class="progress-mini-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="section-title" id="ej-count">${ndone} / ${r.ejercicios.length} ejercicios completados</div>
+    <div class="ejercicios-list" id="ej-list">
+      ${r.ejercicios.map((e, i) => `
+        <div class="ej-item${checks[i]?' checked':''}" id="ei-${i}" onclick="toggleEj('${id}',${i},${r.ejercicios.length})">
+          <div class="ej-check" aria-label="Completar ejercicio">
+            <svg viewBox="0 0 14 14" fill="none" width="14" height="14">
+              <polyline points="2,7 6,11 12,3" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="ej-info">
+            <div class="ej-nombre">${e.n}</div>
+            <div class="ej-detalle">${e.d}</div>
+          </div>
+          ${e.tabata ? `<div class="ej-tiempo">${e.t}</div>` : ''}
+        </div>`).join('')}
+    </div>
+    <button class="complete-btn${done?' done':''}" id="complete-btn" onclick="completeRutina('${id}')" ${done?'disabled':''}>
+      ${done ? '✓ Rutina completada' : 'Marcar rutina como completada'}
+    </button>
+    <button class="tabata-link-btn" onclick="showSection('tabata', document.querySelector('.nav button:nth-child(3)'))">
+      Abrir temporizador Tabata →
+    </button>
+  `;
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-detalle').classList.add('active');
+}
+
+function toggleEj(id, idx, total) {
+  let checks = getChecks(id);
+  checks[idx] = !checks[idx];
+  storage['checks_'+id] = checks;
+  save();
+  let ndone = Object.values(checks).filter(Boolean).length;
+  let el = document.getElementById('ei-'+idx);
+  if(el) { if(checks[idx]) el.classList.add('checked'); else el.classList.remove('checked'); }
+  let fill = document.querySelector('.progress-mini-fill');
+  if(fill) fill.style.width = Math.round(ndone / total * 100) + '%';
+  let countEl = document.getElementById('ej-count');
+  if(countEl) countEl.textContent = ndone + ' / ' + total + ' ejercicios completados';
+}
+
+function completeRutina(id) {
+  markDone(id);
+  let btn = document.getElementById('complete-btn');
+  if(btn) { btn.textContent = '✓ Rutina completada'; btn.disabled = true; btn.classList.add('done'); }
+  renderDashboard();
+}
+
+// PROGRESO
+function renderProgreso() {
+  let done = RUTINAS.filter(r => isDone(r.id)).length;
+  let hist = storage.history || [];
+  document.getElementById('prog-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Sesiones totales</div><div class="stat-val green">${hist.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Rutinas únicas</div><div class="stat-val">${done}</div></div>
+  `;
+  let el = document.getElementById('hist-list');
+  if(!hist.length) {
+    el.innerHTML = '<div class="hist-empty">Todavía no completaste ninguna rutina.<br>¡Empezá hoy!</div>';
+    return;
+  }
+  el.innerHTML = '<div class="hist-list">' + hist.map(h => `
+    <div class="hist-item">
+      <div>
+        <div class="hist-name">${h.nombre}</div>
+        <div class="rc-caps" style="margin-top:6px">${(h.caps||[]).map(c => `<span class="cap-badge cap-${c}">${c}</span>`).join('')}</div>
+      </div>
+      <div class="hist-date">${h.fecha}</div>
+    </div>`).join('') + '</div>';
+}
+
+// TABATA
+let tWork=20, tRest=10, tRounds=8, tPrep=5;
+let tState='idle', tPhase='prep', tCurrent=0, tRound=1, tInterval=null;
+const CIRC = 490.1;
+
+function updateConfig() {
+  tWork    = +document.getElementById('cfg-work').value;
+  tRest    = +document.getElementById('cfg-rest').value;
+  tRounds  = +document.getElementById('cfg-rounds').value;
+  tPrep    = +document.getElementById('cfg-prep').value;
+  document.getElementById('lbl-work').textContent   = tWork + 's';
+  document.getElementById('lbl-rest').textContent   = tRest + 's';
+  document.getElementById('lbl-rounds').textContent = tRounds;
+  document.getElementById('lbl-prep').textContent   = tPrep + 's';
+  let total = tPrep + tRounds * (tWork + tRest);
+  let m = Math.floor(total / 60), s = total % 60;
+  document.getElementById('total-time').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  if(tState === 'idle') timerReset();
+}
+
+function applyPreset(w, r, rds, p) {
+  document.getElementById('cfg-work').value   = w;
+  document.getElementById('cfg-rest').value   = r;
+  document.getElementById('cfg-rounds').value = rds;
+  document.getElementById('cfg-prep').value   = p;
+  updateConfig(); timerReset();
+}
+
+function setTimerDisplay(sec, phase, round) {
+  let disp = document.getElementById('t-display');
+  disp.textContent = (sec < 10 ? '0' : '') + sec;
+  disp.className = 'timer-num' + (phase==='work' ? ' work' : phase==='rest' ? ' rest' : '');
+  let labels = { prep:'Preparación', work:'¡Trabajá!', rest:'Descanso', done:'¡Completado!' };
+  document.getElementById('t-phase').textContent = labels[phase] || phase;
+  document.getElementById('t-ronda').textContent = (phase==='prep'||phase==='done') ? '— / —' : 'Ronda ' + round + ' / ' + tRounds;
+  let total = phase==='prep' ? tPrep : phase==='work' ? tWork : tRest;
+  let pct = total > 0 ? sec / total : 0;
+  let arc = document.getElementById('t-arc');
+  arc.style.strokeDashoffset = CIRC * (1 - pct);
+  arc.style.stroke = phase==='work' ? '#39ff14' : phase==='rest' ? '#3b82f6' : '#444';
+}
+
+function timerReset() {
+  clearInterval(tInterval); tInterval = null; tState = 'idle';
+  tPhase = tPrep > 0 ? 'prep' : 'work';
+  tCurrent = tPrep > 0 ? tPrep : tWork;
+  tRound = 1;
+  setTimerDisplay(tCurrent, tPhase, 1);
+  let btn = document.getElementById('t-playpause');
+  btn.textContent = 'Iniciar';
+  btn.className = 't-btn primary';
+}
+
+function timerPlayPause() {
+  if(tState === 'done') { timerReset(); return; }
+  if(tState === 'running') {
+    clearInterval(tInterval); tInterval = null; tState = 'paused';
+    document.getElementById('t-playpause').textContent = 'Continuar';
+  } else {
+    tState = 'running';
+    document.getElementById('t-playpause').textContent = 'Pausar';
+    tInterval = setInterval(() => {
+      tCurrent--;
+      if(tCurrent <= 0) {
+        if(tPhase === 'prep')      { tPhase = 'work'; tCurrent = tWork; }
+        else if(tPhase === 'work') { tPhase = 'rest'; tCurrent = tRest; }
+        else if(tPhase === 'rest') {
+          if(tRound >= tRounds) {
+            clearInterval(tInterval); tState = 'done'; tPhase = 'done';
+            setTimerDisplay(0, 'done', tRound);
+            document.getElementById('t-playpause').textContent = 'Reiniciar';
+            return;
+          }
+          tRound++; tPhase = 'work'; tCurrent = tWork;
+        }
+      }
+      setTimerDisplay(tCurrent, tPhase, tRound);
+    }, 1000);
+  }
+}
+
+// INIT
+updateConfig();
+timerReset();
+renderDashboard();
+renderRutinas();
+</script>
+</body>
+</html>
